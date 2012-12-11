@@ -14,7 +14,8 @@ function! s:SetOptDefault(opt,val)
     let g:{a:opt} = a:val
   endif
 endfunction
-call s:SetOptDefault("alpaca_wordpress_syntax",1)
+call s:SetOptDefault("alpaca_wordpress_syntax", 0)
+call s:SetOptDefault("alpaca_wordpress_use_default_setting", 0)
 
 " wordpressのau Userの設定
 augroup wordpressPluginDetect
@@ -31,4 +32,11 @@ augroup wordpressPluginDetect
   autocmd BufLeave * if exists("b:wordpress_dir") | silent doau User BufLeaveWordpress|endif
 augroup END
 
-setl noexpandtab nolist syntax=wordpress
+" syntaxの読み込み
+if g:alpaca_wordpress_syntax == 1 || g:alpaca_wordpress_use_default_setting == 1
+  au User BufEnterWordpress setl syntax=wordpress
+endif
+
+if g:alpaca_wordpress_use_default_setting == 1
+  au User BufEnterWordpress setl noexpandtab nolist 
+endif
