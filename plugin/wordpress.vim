@@ -1,19 +1,47 @@
 " Wordpressか判定
-function! s:Detect(file_path)
-  if a:file_path  =~ 'wp-'
-    let b:wordpress_dir = 1
+function! s:Detect(filename)"{{{
+  if exists('b:wordpress_root')
     return 1
   endif
 
+  let fn = substitute(fnamemodify(a:filename,":p"),'\c^file://','','')
+  let sep = matchstr(fn,'^[^\\/]\{3,\}\zs[\\/]')
+  if sep != ""
+    let fn = getcwd().sep.fn
+  endif
+
+  if isdirectory(fn)
+    let fn = fnamemodify(fn,':s?[\/]$??')
+  else
+    let fn = fnamemodify(fn,':s?\(.*\)[\/][^\/]*$?\1?')
+  endif
+  let ofn = ""
+  let nfn = fn
+  while nfn != ofn && nfn != ""
+    let ofn = nfn
+    let nfn = fnamemodify(nfn,':h')
+  endwhile
+  let ofn = ""
+
+  while fn != ofn
+    if filereadable(fn . "/wp-includes/functions.php")
+      let b:wordpress_dir = fn
+      return 1
+    endif
+
+    let ofn = fn
+    let fn = fnamemodify(ofn,':s?\(.*\)[\/]\(models\|views\|wp-admin\|wp-content\|wp-includes\)\($\|[\/].*$\)?\1?')
+  endwhile
+
   return 0
-endfunction
+endfunction"}}}
 
 " 設定
-function! s:SetOptDefault(opt,val)
+function! s:SetOptDefault(opt,val)"{{{
   if !exists("g:".a:opt)
     let g:{a:opt} = a:val
   endif
-endfunction
+endfunction"}}}
 call s:SetOptDefault("alpaca_wordpress_syntax", 0)
 call s:SetOptDefault("alpaca_wordpress_use_default_setting", 0)
 
@@ -34,9 +62,9 @@ augroup END
 
 " syntaxの読み込み
 if g:alpaca_wordpress_syntax == 1 || g:alpaca_wordpress_use_default_setting == 1
-  au User BufEnterWordpress setl syntax=wordpress
+  au User BufEnterWordpress if expand("%:e") == 'php' |setl syntax=wordpress| endif
 endif
 
 if g:alpaca_wordpress_use_default_setting == 1
-  au User BufEnterWordpress setl noexpandtab nolist 
+  au User BufEnterWordpress if expand("%:e") == 'php' |setl noexpandtab nolist | endif
 endif
