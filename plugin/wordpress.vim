@@ -49,12 +49,9 @@ call s:SetOptDefault("alpaca_wordpress_use_default_setting", 0)
 augroup wordpressPluginDetect
   autocmd!
   autocmd BufNewFile,BufRead * call s:Detect(expand("<afile>:p"))
-  autocmd VimEnter * 
+  autocmd VimEnter *
         \ if expand("<amatch>") == ""
-        \|  call s:Detect(getcwd()) 
-        \|endif 
-        \|if exists("b:wordpress_dir") 
-        \|  silent doau User BufEnterWordpress
+        \|  call s:Detect(getcwd())
         \|endif
   autocmd BufEnter * if exists("b:wordpress_dir") | silent doau User BufEnterWordpress|endif
   autocmd BufLeave * if exists("b:wordpress_dir") | silent doau User BufLeaveWordpress|endif
