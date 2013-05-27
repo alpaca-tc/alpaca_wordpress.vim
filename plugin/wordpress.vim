@@ -1,5 +1,5 @@
-" Wordpressか判定
-function! s:Detect(filename)"{{{
+" wordpressか判定
+function! s:detect(filename) "{{{
   if exists('b:wordpress_root')
     return 1
   endif
@@ -15,6 +15,7 @@ function! s:Detect(filename)"{{{
   else
     let fn = fnamemodify(fn,':s?\(.*\)[\/][^\/]*$?\1?')
   endif
+
   let ofn = ""
   let nfn = fn
   while nfn != ofn && nfn != ""
@@ -37,25 +38,25 @@ function! s:Detect(filename)"{{{
 endfunction"}}}
 
 " 設定
-function! s:SetOptDefault(opt,val)"{{{
+function! s:set_default_option(opt,val) "{{{
   if !exists("g:".a:opt)
     let g:{a:opt} = a:val
   endif
 endfunction"}}}
-call s:SetOptDefault("alpaca_wordpress_syntax", 0)
-call s:SetOptDefault("alpaca_wordpress_use_default_setting", 0)
+call s:set_default_option("alpaca_wordpress_syntax", 0)
+call s:set_default_option("alpaca_wordpress_use_default_setting", 0)
 
 " wordpressのau Userの設定
-augroup wordpressPluginDetect
+augroup wordpressPluginDetect "{{{
   autocmd!
-  autocmd BufNewFile,BufRead * call s:Detect(expand("<afile>:p"))
+  autocmd BufNewFile,BufRead * call <SID>detect(expand("<afile>:p"))
   autocmd VimEnter *
         \ if expand("<amatch>") == ""
-        \|  call s:Detect(getcwd())
+        \|  call <SID>detect(getcwd())
         \|endif
   autocmd BufEnter * if exists("b:wordpress_dir") | silent doau User BufEnterWordpress|endif
   autocmd BufLeave * if exists("b:wordpress_dir") | silent doau User BufLeaveWordpress|endif
-augroup END
+augroup END "}}}
 
 " syntaxの読み込み
 if g:alpaca_wordpress_syntax == 1 || g:alpaca_wordpress_use_default_setting == 1
